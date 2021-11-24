@@ -1,29 +1,74 @@
+//  ------------ PAGE PRODUIT ------------ PAGE PRODUIT ------------ PAGE PRODUIT ------------ 
+
+let local = window.location.href;
+let url = new URL(local);
+let productId = url.searchParams.get("id");
+
+    function getProductInfo() {
+        fetch("http://localhost:3000/api/products/" + productId)
+          .then(function (response) {
+              return response.json();
+          })
+          .then(function (item) {
+              const product = item;
+              console.log(product);
+              
+              let itemImg = document.createElement("img");
+              document.querySelector(".item__img").appendChild(itemImg);
+              itemImg.src = product.imageUrl;
+              itemImg.alt = product.altTxt;
+              
+              let itemName = document.querySelector('#title');
+              itemName.innerHTML = product.name;
+              
+              let itemPrice = document.querySelector('#price');
+              itemPrice.innerHTML = product.price;
+              
+              let itemDescription = document.querySelector('#description');
+              itemDescription.innerHTML = product.description;
+              
+              for (let colorChoices of product.colors){
+                console.log(colorChoices);
+                let itemColors = document.createElement("option");
+                  document.querySelector("#colors").appendChild(itemColors);
+                  itemColors.value = colorChoices;
+                  itemColors.innerHTML = colorChoices;
+              }
+    });
 
 
-const urlSearch = new URLSearchParams(window.location.search); 
+//  ------------ ADD TO CART ------------ ADD TO CART ------------ ADD TO CART ------------ 
 
-const productId = urlParams.get("id");
-const buttonPanier = document.querySelector("#addToCart");
-const itemQuantity = document.querySelector('#quantity');
-let isColorPresent = true;
+     const btnAddToCart = document.getElementById("addToCart");
+     btnAddToCart.addEventListener("click", () => {
+         let productColor = document.getElementById("colors").value;
+         let productQuantity = document.getElementById("quantity").value;
+         
+         if (productColor == "") {
+              alert("Choississez une couleur");
+              
+          } else if (productQuantity == 0 || productQuantity >= 100) {
+             alert("Choississez une quantitée valable");
+          } else {
+              
+              let cartContent = localStorage.getItem('cartContent');
+              if (cartContent === null){
+                 let cartArray = [[productId, productColor, parseInt(productQuantity)]];
 
-let products; 
-let itemTitle = document.querySelector("#title");
-let itemDescription = document.querySelector("#description");
-let itemPrice = document.querySelector("#price");
-let itemImage = document.querySelector(".item__img");
-let itemColors = document.querySelector('#colors');
+                 let cartArrayStr = JSON.stringify(cartArray) 
+                 localStorage.setItem('cartContent', cartArrayStr)
 
-function getProduct() {
-  fetch('http://localhost:3000/api/products/' + productId)
-  .then(res => res.json())
-  .then(products => {
-    itemTitle.textContent = '${products.name}';
-    itemDescription.textContent = '${products.description}';
-    itemPrice.textContent = '${products.price}';
-    itemImage.textContent = `<img src=${products.imageUrl} alt="Photographie d'un canapé" /> ` ;
-    products.colors.map((color) => {
-      itemColors.innerHTML += `<option value="${color}">${color}</option>`;
-  })
-  })
+             }
+             else {
+                 let cartArray = JSON.parse(cartContent);
+                
+                 cartArray.push ([productId, productColor, productQuantity])
+                 let cartArrayStr = JSON.stringify(cartArray) 
+                 localStorage.setItem('cartContent', cartArrayStr)
+            }
+            window.location.href = "./cart.html";
+        }
+    });
 }
+
+getProductInfo();
