@@ -47,7 +47,7 @@ let productId = url.searchParams.get("id");
          if (productColor == "") {
               alert("Choississez une couleur");
               
-          } else if (productQuantity == 0 || productQuantity >= 100) {
+          } else if (productQuantity == 0 || productQuantity > 100) {
              alert("Choississez une quantitée valable");
           } else {
               
