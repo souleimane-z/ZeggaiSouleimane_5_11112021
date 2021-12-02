@@ -53,18 +53,18 @@ let productId = url.searchParams.get("id");
               
               let cartContent = localStorage.getItem('cartContent');
               if (cartContent === null){
-                 let cartArray = [[productId, productColor, parseInt(productQuantity)]];
+                 let cartTable = [[productId, productColor, parseInt(productQuantity)]];
 
-                 let cartArrayStr = JSON.stringify(cartArray) 
-                 localStorage.setItem('cartContent', cartArrayStr)
+                 let cartTableTxt = JSON.stringify(cartTable) 
+                 localStorage.setItem('cartContent', cartTableTxt)
 
              }
              else {
-                 let cartArray = JSON.parse(cartContent);
+                 let cartTable = JSON.parse(cartContent);
                 
-                 cartArray.push ([productId, productColor, productQuantity])
-                 let cartArrayStr = JSON.stringify(cartArray) 
-                 localStorage.setItem('cartContent', cartArrayStr)
+                 cartTable.push ([productId, productColor, productQuantity])
+                 let cartTableTxt = JSON.stringify(cartTable) 
+                 localStorage.setItem('cartContent', cartTableTxt)
             }
             window.location.href = "./cart.html";
         }
