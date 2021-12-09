@@ -1,74 +1,86 @@
-//  ------------ PAGE PRODUIT ------------ PAGE PRODUIT ------------ PAGE PRODUIT ------------ 
+let productInfos = {};
 
-let local = window.location.href;
-let url = new URL(local);
-let productId = url.searchParams.get("id");
+const getProductInfos = async (id) => {
+  kanap = await fetch(`http://localhost:3000/api/products/${id}`)
+    .then((res) => res.json())
+    .then((data) => data);
+  loadCanapes(kanap);
+};
 
-    function getProductInfo() {
-        fetch("http://localhost:3000/api/products/" + productId)
-          .then(function (response) {
-              return response.json();
-          })
-          .then(function (item) {
-              const product = item;
-              console.log(product);
-              
-              let itemImg = document.createElement("img");
-              document.querySelector(".item__img").appendChild(itemImg);
-              itemImg.src = product.imageUrl;
-              itemImg.alt = product.altTxt;
-              
-              let itemName = document.querySelector('#title');
-              itemName.innerHTML = product.name;
-              
-              let itemPrice = document.querySelector('#price');
-              itemPrice.innerHTML = product.price;
-              
-              let itemDescription = document.querySelector('#description');
-              itemDescription.innerHTML = product.description;
-              
-              for (let colorChoices of product.colors){
-                console.log(colorChoices);
-                let itemColors = document.createElement("option");
-                  document.querySelector("#colors").appendChild(itemColors);
-                  itemColors.value = colorChoices;
-                  itemColors.innerHTML = colorChoices;
-              }
-    });
+const productIdUrl = window.location.search;
+const urlProduct = new URLSearchParams(productIdUrl);
 
-
-//  ------------ ADD TO CART ------------ ADD TO CART ------------ ADD TO CART ------------ 
-
-     const btnAddToCart = document.getElementById("addToCart");
-     btnAddToCart.addEventListener("click", () => {
-         let productColor = document.getElementById("colors").value;
-         let productQuantity = document.getElementById("quantity").value;
-         
-         if (productColor == "") {
-              alert("Choississez une couleur");
-              
-          } else if (productQuantity == 0 || productQuantity > 100) {
-             alert("Choississez une quantitée valable");
-          } else {
-              
-              let cartContent = localStorage.getItem('cartContent');
-              if (cartContent === null){
-                 let cartTable = [[productId, productColor, parseInt(productQuantity)]];
-
-                 let cartTableTxt = JSON.stringify(cartTable) 
-                 localStorage.setItem('cartContent', cartTableTxt)
-
-             }
-             else {
-                 let cartTable = JSON.parse(cartContent);
-                
-                 cartTable.push ([productId, productColor, productQuantity])
-                 let cartTableTxt = JSON.stringify(cartTable) 
-                 localStorage.setItem('cartContent', cartTableTxt)
-            }
-            window.location.href = "./cart.html";
-        }
-    });
+function getKanapInfo(id) {
+  getProductInfos(id);
 }
 
-getProductInfo();
+getKanapInfo(urlProduct.get("id"));
+
+function loadCanapes(dataItem) {
+  productInfos = dataItem;
+  const { imageUrl, altTxt, name, price, description, colors } = dataItem;
+
+  insertElement(".item__img", `<img src=${imageUrl} alt=${altTxt}>`);
+  insertElement("#title", name);
+  insertElement("#price", price);
+  insertElement("#description", description);
+
+  for (index in colors) {
+    insertElement(
+      "#colors",
+      `<option value="${colors[index]}">${colors[index]}</option>`
+    );
+  }
+}
+
+function insertElement(id, text) {
+  document.querySelector(id).innerHTML += text;
+}
+
+
+const itemColor = document.querySelector("#colors");
+const itemQuantity = document.querySelector("#quantity");
+const addToCartBtn = document.querySelector("#addToCart");
+
+addToCartBtn.addEventListener("click", (event) => {
+  event.preventDefault();
+  
+  const colorChoice = itemColor.value;
+  
+  const quantityChoice = itemQuantity.value;
+
+  let itemOptions = {
+    id: urlProduct.get("id"),
+    name: productInfos.name,
+    quantity: quantityChoice,
+    colors: colorChoice,
+    price: productInfos.price,
+    description: productInfos.description,
+    image: productInfos.imageUrl,
+  };
+
+  console.log(itemOptions);
+
+  let productLocalStorage = JSON.parse(localStorage.getItem("produit"));
+
+  const confirmationAlert = () => {
+    if (
+      window.confirm(`Confirmation de l'ajout au panier : ${quantityChoice} ${productInfos.name} ${colorChoice}`)
+    ) {
+      window.location.href = "./cart.html";
+    }
+  };
+  if (productLocalStorage) {
+    productLocalStorage.push(itemOptions);
+
+    localStorage.setItem("produit", JSON.stringify(productLocalStorage));
+    confirmationAlert();
+  } else {
+    productLocalStorage = [];
+    productLocalStorage.push(itemOptions);
+    localStorage.setItem("produit", JSON.stringify(productLocalStorage));
+    confirmationAlert();
+
+    console.log(productLocalStorage);
+  }
+});
