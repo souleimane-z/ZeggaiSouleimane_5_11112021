@@ -1,12 +1,4 @@
-/*   
- *   Problème : peut ajouter des produits égal à 0    suppérieurs à 100
- *   Refaire la function delete , ne fonctionnait pas
- *   
- *   Function delete(index) { productLocalStorage.filter( I => I != index) }
- * 
- * 
- *   Mêmes produits dupliqué dans le panier
- */
+
 
 
 let productLocalStorage = JSON.parse(localStorage.getItem("produit"));
@@ -106,8 +98,11 @@ let cartTable = [];
 
 compute();
 
-
-
+/*
+ *
+ * FORM:
+ * 
+ */
 const formBtn = document.querySelector("#order");
 formBtn.addEventListener("click", (e) => {
   e.preventDefault();
@@ -117,12 +112,13 @@ formBtn.addEventListener("click", (e) => {
     lastName: document.querySelector("#lastName").value,
     address: document.querySelector("#address").value,
     city: document.querySelector("#city").value,
-    email: document.querySelector("#email").value,
+    mail: document.querySelector("#email").value,
   };
 
-  const regexTexts = (value) => {
-    return /^(([a-zA-ZÀ-ÿ]+[\s\-]{1}[a-zA-ZÀ-ÿ]+)|([a-zA-ZÀ-ÿ]+))$/.test(value);
-  };
+  const regexTexts = (value) => { return /^(([a-zA-ZÀ-ÿ]+[\s\-]{1}[a-zA-ZÀ-ÿ]+)|([a-zA-ZÀ-ÿ]+))$/.test(value); };
+  const regexAddress = (value) => { return /^(([a-zA-ZÀ-ÿ0-9]+[\s\-]{1}[a-zA-ZÀ-ÿ0-9]+)){1,10}$/.test(value); };
+  const regexMail = (value) => { return /([a-z0-9.\-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/.test(value); }
+
 
   validationFirstName();
   validationLastName();
@@ -136,7 +132,7 @@ formBtn.addEventListener("click", (e) => {
       return true;
     } else {
       const alertError = "Les données fournis ne respectent pas les critères des champs";
-      const displayError = document.querySelector("#firstNameAlertError");
+      const displayError = document.querySelector("#firstNameErrorMsg");
       displayError.innerHTML = alertError;
       return false;
     }
@@ -147,62 +143,63 @@ formBtn.addEventListener("click", (e) => {
       return true;
     } else {
       const alertError = "Les données fournis ne respectent pas les critères des champs";
-      const displayError = document.querySelector("#lastNameAlertError");
+      const displayError = document.querySelector("#lastNameErrorMsg");
       displayError.innerHTML = alertError;
       return false;
     }
   }
   function validationAddress() {
-    const adressInput = contactInput.address;
-    if (/^(([a-zA-ZÀ-ÿ0-9]+[\s\-]{1}[a-zA-ZÀ-ÿ0-9]+)){1,10}$/.test(adressInput)) {
+    const address = contactInput.address;
+    if (regexAddress(address)) {
       return true;
     } else {
       const alertError = "Les données fournis ne respectent pas les critères des champs";
-      const displayError = document.querySelector("#addressAlertError");
+      const displayError = document.querySelector("#addressErrorMsg");
       displayError.innerHTML = alertError;
       return false;
     }
+  }
   function validationCity() {
     const city = contactInput.city;
     if (regexTexts(city)) {
       return true;
     } else {
       const alertError = "Les données fournis ne respectent pas les critères des champs";
-      const displayError = document.querySelector("#cityAlertError");
+      const displayError = document.querySelector("#cityErrorMsg");
       displayError.innerHTML = alertError;
       return false;
     }
   }
   function validationMail() {
-    const mail = contactInput.email;
-    if (/^[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]{2,}\.[a-z]{2,4}$/.test(mail)) {
+    const mail = contactInput.mail;
+    if (regexMail(mail)) {
       return true;
     } else {
       const alertError = "Les données fournis ne respectent pas les critères des champs";
-      const displayError = document.querySelector("#emailAlertError");
+      const displayError = document.querySelector("#emailErrorMsg");
       displayError.innerHTML = alertError;
       return false;
     }
-  }
+  
   }
   if (
     validationFirstName() &&
     validationLastName() &&
-    validationLastName() &&
     validationAddress() &&
+    validationCity() &&
     validationMail()
   ) {
     localStorage.setItem("formulaireValues", JSON.stringify(contactInput));
     
-    const products = productRegister.map((product) => product.id);
-    const toSend = {
+    const products = productLocalStorage.map((product) => product.id);
+    const orderMade = {
       products,
       contactInput,
     };
     
     fetch("http://localhost:3000/api/products/order", {
       method: "POST",
-      body: JSON.stringify(toSend),
+      body: JSON.stringify(orderMade),
       headers: {
         "Content-Type": "application/json",
       },
