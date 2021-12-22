@@ -1,4 +1,4 @@
-// ---- Fetch API ----
+// ---- Fetch : requête de l'API ----
 
 fetch('http://localhost:3000/api/products')
 .then((res) => res.json())
@@ -12,9 +12,12 @@ fetch('http://localhost:3000/api/products')
 function getAllProducts(apiData) {
     console.log(apiData);
   
+     // Parcours les données de l'API
     for (index in apiData) {
       const { _id, imageUrl, altTxt, name, description } = apiData[index];
-      document.getElementById("items")
+
+       // Injecte les données dans le code HTML pour afficher les produits
+      document.getElementById("items")                                    
       .innerHTML += `<a href="./product.html?id=${_id}">
         <article>
           <img src="${imageUrl}" alt="${altTxt}">

@@ -1,109 +1,123 @@
 
 
-
 let productLocalStorage = JSON.parse(localStorage.getItem("produit"));
 console.log(productLocalStorage);
 
-const displayProduct = document.getElementById("cart__items");
 
+const cartContent = document.getElementById("cart__items");
+//console.log(cartContent);
+
+
+const formContact = document.querySelector(".cart__order__form");
 /*
  *
  *  Function that deletes products from the cart 
  * 
  */
 
-document.getElementById("cart__items").addEventListener("click", function (e) {
-  if (e.target.className === "deleteItem") {
-    let productId =
-    e.target.parentNode.parentNode.parentNode.parentNode.dataset.id;
-    e.target.parentNode.parentNode.parentNode.parentNode.remove();
-
-    productLocalStorage = productLocalStorage.filter(
-      (x) => x.id !== productId
-    );
-    localStorage.setItem("produit", JSON.stringify(productLocalStorage));
-    compute();
-    location.reload()
-  }
-  if (e.target.className === "itemQuantity") {
-    let productId =
-      e.target.parentNode.parentNode.parentNode.parentNode.dataset.id;
-    let quantityKanap = productLocalStorage.findIndex(
-      (x) => x.id === productId
-    );
-
-    productLocalStorage[quantityKanap].quantity = e.target.value;
-    
-    localStorage.setItem("produit", JSON.stringify(productLocalStorage));
-    compute();
-  }
-});
-
-/*
- *
- * Function that calculates the sum of Quantity & Price
- * 
- */
-function compute() {
-    let priceTotal = 0;
-    let quantityTotal = 0;
-    
-    for (let t = 0; t < productLocalStorage.length; t++) {
-      quantityTotal += parseInt(productLocalStorage[t].quantity);
-      priceTotal += parseInt(
-        productLocalStorage[t].price * productLocalStorage[t].quantity
-      );
-    }
-    
-    document.getElementById("totalQuantity").innerHTML = quantityTotal;
-    document.getElementById("totalPrice").innerHTML = priceTotal;
+// Calcule de la quantité total
+function computeQuantity() {
+  let totalQuantity = 0;
+  const itemQuantity = document.querySelectorAll(".itemQuantity");
+  const quantityAtTheEnd = document.querySelector("#totalQuantity");
+  itemQuantity.forEach((quantity) => {
+    totalQuantity += parseInt(quantity.value);
+  });
+  quantityAtTheEnd.innerText = totalQuantity;
 }
 
-/*
- *
- * Function that displays the list of the items in the cart
- * 
- */
+// Calcule du prix total
+function computePrice() {
+  let totalPrice = 0;
+  const itemPrices = document.querySelectorAll(".newPrice");
+  const finalPrice = document.querySelector("#totalPrice");
+  itemPrices.forEach((price) => {
+    totalPrice += parseInt(price.innerText);
+  });
+  finalPrice.innerText = totalPrice;
+}
+// Appel de la fonction "Supprimer"
+function deleteItem(btn) {
+  const deleteButton = document.querySelectorAll(".deleteItem");
+  let index = [...deleteButton].indexOf(btn);
+  productLocalStorage.splice(index, 1);
+  localStorage.setItem("produit", JSON.stringify(productLocalStorage));
+  cartTable();
+  computeQuantity();
+  computePrice();
+  
+    location.reload();
+}
 
-let cartTable = [];
+function deleteListener() {
+  const deleteButton = document.querySelectorAll(".deleteItem");
+  deleteButton.forEach((btn) => {
+    btn.addEventListener("click", () => deleteItem(btn));
+  });
+}
 
-    for (i = 0; i < productLocalStorage.length; i++) {
-      cartTable +=
-        `<article class="cart__item" data-id="${ productLocalStorage[i].id }">
-          <div class="cart__item__img">
-            <img src="${ productLocalStorage[i].image }" alt="Photographie d'un canapé">
-          </div>
-          <div class="cart__item__content">
-            <div class="cart__item__content__titlePrice">
-            <h2>${productLocalStorage[i].name}</h2>
-            <p>${productLocalStorage[i].colors}</p>
-            <p>${productLocalStorage[i].price} €</p>
-            </div>
-            <div class="cart__item__content__settings">
-            <div class="cart__item__content__settings__quantity">
-                <p>Qté : </p>
-                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${ productLocalStorage[i].quantity }>
-              </div>
-              <div class="cart__item__content__settings__delete">
-                <p class="deleteItem">Supprimer</p>
-                </div>
-            </div>
-          </div>
-        </article>`;
-    }
+// prix qui change en fonction de la quantité
+function priceChangesWithQuantity() {
+  quantityTotal = 0;
+  const itemQuantity = document.querySelectorAll(".itemQuantity"); //itemQuantity tableau d'une collection d'éléments
+  const itemPrices = document.querySelectorAll(".newPrice");
+  itemQuantity.forEach((quantity) => {
+    quantity.addEventListener("change", (e) => {
+      let index = [...itemQuantity].indexOf(quantity);
+      productLocalStorage[index].quantity = parseInt(e.target.value);
+      let newPrice = productLocalStorage[index].price * productLocalStorage[index].quantity;
+      localStorage.setItem("produit", JSON.stringify(productLocalStorage));
 
-    if (i == productLocalStorage.length) {
-      displayProduct.innerHTML = cartTable;
-    }
+      itemPrices[index].innerText = `${newPrice} €`;
+      computeQuantity();
+      computePrice();
+    });
+  });
+} 
 
-compute();
+// affichage du produit dans la page panier grâce au HTML
+function cartTable() {
+  document.querySelector("#cart__items").innerHTML = "";
+
+  productLocalStorage.forEach((product) => {
+    document.querySelector("#cart__items").innerHTML += `
+                    <article class="cart__item" data-id="${product.id}">
+                        <div class="cart__item__img">
+                        <img src="${product.image}" alt="Photographie d'un canapé">
+                        </div>
+                        <div class="cart__item__content">
+                        <div class="cart__item__content__titlePrice">
+                            <h2>${product.name}</h2>
+                            <p>${product.colors}</p>
+                            <p class="newPrice">${product.price * product.quantity}€</p>
+                        </div>
+                        <div class="cart__item__content__settings">
+                            <div class="cart__item__content__settings__quantity">
+                              <p>Qté : </p>
+                              <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.quantity}"/>
+                            </div>
+                            <div class="cart__item__content__settings__delete">
+                              <p class="deleteItem">Supprimer</p>
+                            </div>
+                        </div>
+                        </div>
+                    </article>`;
+  });
+
+  deleteListener();
+}
+cartTable();
+priceChangesWithQuantity();
+computeQuantity();
+computePrice();
 
 /*
  *
  * FORM:
  * 
  */
-const formBtn = document.querySelector("#order");
+
+const formBtn = document.getElementById("order");
 formBtn.addEventListener("click", (e) => {
   e.preventDefault();
   
@@ -114,7 +128,7 @@ formBtn.addEventListener("click", (e) => {
     city: document.querySelector("#city").value,
     mail: document.querySelector("#email").value,
   };
-
+// permets de valider les champs du formulaire
   const regexTexts = (value) => { return /^(([a-zA-ZÀ-ÿ]+[\s\-]{1}[a-zA-ZÀ-ÿ]+)|([a-zA-ZÀ-ÿ]+))$/.test(value); };
   const regexAddress = (value) => { return /^(([a-zA-ZÀ-ÿ0-9]+[\s\-]{1}[a-zA-ZÀ-ÿ0-9]+)){1,10}$/.test(value); };
   const regexMail = (value) => { return /([a-z0-9.\-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/.test(value); }
@@ -182,13 +196,14 @@ formBtn.addEventListener("click", (e) => {
     }
   
   }
+  // envoi dans le localstorage pour la page de confirmation
   if (
     validationFirstName() &&
     validationLastName() &&
     validationAddress() &&
     validationCity() &&
     validationMail()
-  ) {
+  ) { 
     localStorage.setItem("formulaireValues", JSON.stringify(contactInput));
     
     const products = productLocalStorage.map((product) => product.id);
@@ -196,7 +211,6 @@ formBtn.addEventListener("click", (e) => {
       products,
       contactInput,
     };
-    
     fetch("http://localhost:3000/api/products/order", {
       method: "POST",
       body: JSON.stringify(orderMade),
@@ -212,5 +226,3 @@ formBtn.addEventListener("click", (e) => {
       });
   }
 });
-
-
