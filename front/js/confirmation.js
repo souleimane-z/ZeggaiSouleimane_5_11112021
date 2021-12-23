@@ -1,4 +1,4 @@
-const url = new URL(document.location).searchParams;
-const orderId = params.get("orderId");
+const  url = new URL(document.location);
+const orderId = url.get("orderId");
 
 document.getElementById("orderId").textContent = orderId;

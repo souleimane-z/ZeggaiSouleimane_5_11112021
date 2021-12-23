@@ -1,28 +1,20 @@
 
 
-let productLocalStorage = JSON.parse(localStorage.getItem("produit"));
+let productLocalStorage = JSON.parse(localStorage.getItem("product"));
 console.log(productLocalStorage);
 
 
-cartTable();
-//const cartContent = document.getElementById("cart__items");
-//console.log(cartContent);
 
-/*
- *
- *  Function that deletes products from the cart 
- * 
- */
 
 // Calcule de la quantité total
 function computeQuantity() {
   let totalQuantity = 0;
   const itemQuantity = document.querySelectorAll(".itemQuantity");
-  const quantityAtTheEnd = document.querySelector("#totalQuantity");
+  const finalQuantity = document.querySelector("#totalQuantity");
   itemQuantity.forEach((quantity) => {
     totalQuantity += parseInt(quantity.value);
   });
-  quantityAtTheEnd.innerText = totalQuantity;
+  finalQuantity.innerText = totalQuantity;
 }
 
 // Calcule du prix total
@@ -41,7 +33,7 @@ function deleteItem(btn) {
   const deleteButton = document.querySelectorAll(".deleteItem");
   let index = [...deleteButton].indexOf(btn);
   productLocalStorage.splice(index, 1);
-  localStorage.setItem("produit", JSON.stringify(productLocalStorage));
+  localStorage.setItem("product", JSON.stringify(productLocalStorage));
   cartTable();
   computeQuantity();
   computePrice();
@@ -59,25 +51,26 @@ function deleteListener() {
 // prix qui change en fonction de la quantité
 function priceChangesWithQuantity() {
   totalQuantity = 0;
-  const itemQuantity = document.querySelectorAll(".itemQuantity"); //itemQuantity tableau d'une collection d'éléments
+  const itemQuantity = document.querySelectorAll(".itemQuantity");
   const itemPrices = document.querySelectorAll(".newPrice");
   itemQuantity.forEach((quantity) => {
     quantity.addEventListener("change", (e) => {
       let index = [...itemQuantity].indexOf(quantity);
       productLocalStorage[index].quantity = parseInt(e.target.value);
       let newPrice = productLocalStorage[index].price * productLocalStorage[index].quantity;
-      localStorage.setItem("produit", JSON.stringify(productLocalStorage));
+      localStorage.setItem("product", JSON.stringify(productLocalStorage));
 
       itemPrices[index].innerText = `${newPrice} €`;
       computeQuantity();
       computePrice();
     });
   });
-} 
+} ;
+
 // affichage du produit dans la page panier grâce au HTML
 function cartTable() {
   
-  document.getElementById("cart__items").innerHTML = "";
+  document.getElementById("cart__items").innerHTML = " ";
 
   productLocalStorage.forEach((product) => {
     document.getElementById("cart__items").innerHTML += `
@@ -106,6 +99,7 @@ function cartTable() {
 
   deleteListener();
 }
+cartTable();
 priceChangesWithQuantity();
 computeQuantity();
 computePrice();
@@ -228,23 +222,20 @@ order.addEventListener("click", (e) => {
 
     let orderMade = { contact, products };
     
-    fetch("http://localhost:3000/api/products/order", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-type": "application/json",
-      },
-      body: JSON.stringify(orderMade),
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((confirm) => {
-        window.location.href = "./confirmation.html?orderId=" + confirm.orderId;
-        localStorage.clear();
-      })
-      .catch((error) => {
-        console.log("une erreur est survenue");
-      });
+    fetch(('http://localhost:3000/api/products/order'),{
+            method: "POST",
+            headers :{'Accept':'application/json','Content-type':'application/json'
+            },
+            body : JSON.stringify(orderMade)
+        })
+        .then(res =>{
+            return res.json();
+        })
+        .then((confirm)=>{
+        window.location.href =`confirmation.html?orderId=${confirm.orderId}`;
+        })
+        .catch((error)=>{
+            alert(error);
+        })
   }
 });

@@ -61,7 +61,7 @@ addToCartBtn.addEventListener("click", (event) => {
 
   console.log(itemOptions);
 
-  let productLocalStorage = JSON.parse(localStorage.getItem("produit"));
+  let productLocalStorage = JSON.parse(localStorage.getItem("product"));
 
   const confirmationAlert = () => {
     if (
@@ -73,12 +73,12 @@ addToCartBtn.addEventListener("click", (event) => {
   if (productLocalStorage) {
     productLocalStorage.push(itemOptions);
 
-    localStorage.setItem("produit", JSON.stringify(productLocalStorage));
+    localStorage.setItem("product", JSON.stringify(productLocalStorage));
     confirmationAlert();
   } else {
     productLocalStorage = [];
     productLocalStorage.push(itemOptions);
-    localStorage.setItem("produit", JSON.stringify(productLocalStorage));
+    localStorage.setItem("product", JSON.stringify(productLocalStorage));
     confirmationAlert();
 
     console.log(productLocalStorage);
