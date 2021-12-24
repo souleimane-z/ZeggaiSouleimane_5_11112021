@@ -1,10 +1,5 @@
-
-
 let productLocalStorage = JSON.parse(localStorage.getItem("product"));
 console.log(productLocalStorage);
-
-
-
 
 // Calcule de la quantité total
 function computeQuantity() {
@@ -14,7 +9,7 @@ function computeQuantity() {
   itemQuantity.forEach((quantity) => {
     totalQuantity += parseInt(quantity.value);
   });
-  finalQuantity.innerText = totalQuantity;
+  if(finalQuantity != null){ finalQuantity.innerText = totalQuantity;}
 }
 
 // Calcule du prix total
@@ -25,7 +20,7 @@ function computePrice() {
   itemPrices.forEach((price) => {
     totalPrice += parseInt(price.innerText);
   });
-  finalPrice.innerText = totalPrice;
+  if(finalPrice != null){finalPrice.innerText = totalPrice;}
 }
 
 // Appel de la fonction "Supprimer"
@@ -49,7 +44,7 @@ function deleteListener() {
 }
 
 // prix qui change en fonction de la quantité
-function priceChangesWithQuantity() {
+function computeAll() {
   totalQuantity = 0;
   const itemQuantity = document.querySelectorAll(".itemQuantity");
   const itemPrices = document.querySelectorAll(".newPrice");
@@ -70,10 +65,12 @@ function priceChangesWithQuantity() {
 // affichage du produit dans la page panier grâce au HTML
 function cartTable() {
   
-  document.getElementById("cart__items").innerHTML = " ";
+  if 
+  (document.getElementById("cart__items") != null) { document.getElementById("cart__items").innerHTML =  ""}
 
   productLocalStorage.forEach((product) => {
-    document.getElementById("cart__items").innerHTML += `
+    
+  if(document.getElementById("cart__items") != null) {document.getElementById("cart__items").innerHTML += `
                     <article class="cart__item" data-id="${product.id}">
                         <div class="cart__item__img">
                         <img src="${product.image}" alt="Photographie d'un canapé">
@@ -95,12 +92,13 @@ function cartTable() {
                         </div>
                         </div>
                     </article>`;
+  }
   });
 
   deleteListener();
 }
 cartTable();
-priceChangesWithQuantity();
+computeAll();
 computeQuantity();
 computePrice();
 
@@ -121,7 +119,7 @@ const lastName = document.getElementById("lastName");
 const address = document.getElementById("address");
 const city = document.getElementById("city");
 const email = document.getElementById("email");
-
+/*
 // Validation prénom
 firstName.addEventListener("input", (event) => {
   event.preventDefault();
@@ -184,7 +182,7 @@ email.addEventListener("input", (event) => {
     return true;
   }
 });
-
+*/
 let order = document.getElementById("order");
 order.addEventListener("click", (e) => {
   e.preventDefault();
@@ -195,7 +193,33 @@ order.addEventListener("click", (e) => {
     city: city.value,
     email: email.value,
   };
+  
+    let products = [];
+    productLocalStorage.forEach((order) => {
+      products.push(order.id);
+    })
 
+  let orderMade = { contact, products };
+  console.log(orderMade);
+  fetch((`http://localhost:3000/api/products/order`),{
+          method: "POST",
+          headers :{'Accept':'application/json','Content-type':'application/json'
+          },
+          body : JSON.stringify(orderMade)
+      })
+      .then(res =>{
+          return res.json();
+      })
+      .then((confirm)=>{
+      window.location.href =`confirmation.html?orderId=${confirm.orderId}`;
+      })
+      .catch((error)=>{
+          alert(error);
+      })
+}
+
+);
+/*
   if (
     firstName.value === "" ||
     lastName.value === "" ||
@@ -221,8 +245,8 @@ order.addEventListener("click", (e) => {
     });
 
     let orderMade = { contact, products };
-    
-    fetch(('http://localhost:3000/api/products/order'),{
+    console.log(orderMade);
+    fetch((`http://localhost:3000/api/products/order`),{
             method: "POST",
             headers :{'Accept':'application/json','Content-type':'application/json'
             },
@@ -239,3 +263,4 @@ order.addEventListener("click", (e) => {
         })
   }
 });
+*/
