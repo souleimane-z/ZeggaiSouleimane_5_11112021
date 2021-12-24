@@ -2,6 +2,8 @@ let productLocalStorage = JSON.parse(localStorage.getItem("product"));
 console.log(productLocalStorage);
 
 const order = document.querySelector("#order");
+
+
 // Variables Regex, permet de valider les champs du formulaire
 let regexTexts = /^[a-zA-Z\-çñàéèêëïîôüù ]{2,}$/;
 let regexAddress = /^[0-9a-zA-Z\s,.'-çñàéèêëïîôüù]{3,}$/;
@@ -122,7 +124,6 @@ computePrice();
  * 
  */
 
-/*
 // Validation prénom
 firstName.addEventListener("input", (event) => {
   event.preventDefault();
@@ -185,10 +186,12 @@ email.addEventListener("input", (event) => {
     return true;
   }
 });
-*/
+
+
 order.addEventListener("click", (e) => {
   e.preventDefault(); 
   
+
   let contact = {
     firstName: firstName.value,
     lastName: lastName.value,
@@ -196,14 +199,34 @@ order.addEventListener("click", (e) => {
     city: city.value,
     email: email.value,
   };
+if (
+  firstName.value === "" ||
+  lastName.value === "" ||
+  address.value === "" ||
+  city.value === "" ||
+  email.value === ""
+) {
+  window.confirm(
+    "Vous devez remplir le formulaire pour confirmer la commande"
+  );
+} else if (
+  regexTexts.test(firstName.value) == false ||
+  regexTexts.test(lastName.value) == false ||
+  regexAddress.test(address.value) == false ||
+  regexTexts.test(city.value) == false ||
+  regexMail.test(email.value) == false
+) {
+  window.confirm("Le formulaire est mal rempli, veuillez le vérifier. Merci");
+} else {
+  let products = [];
+  productLocalStorage.forEach((order) => {
+    products.push(order.id);
+  });
   
-    let products = [];
-    productLocalStorage.forEach((order) => {
-      products.push(order.id);
-    })
 
   let orderMade = { contact, products };
-  console.log(orderMade);
+  
+
   fetch((`http://localhost:3000/api/products/order`),{
           method: "POST",
           headers :{'Accept':'application/json','Content-type':'application/json'
@@ -214,61 +237,14 @@ order.addEventListener("click", (e) => {
           return res.json();
       })
       .then((confirm)=>{
-        localStorage.removeItem('product');
+        //localStorage.removeItem('product');
         window.location.replace(`confirmation.html?order=${confirm.orderId}`);
-
-        //window.location.href =`confirmation.html?orderId=${confirm.orderId}`;
       })
       .catch((error)=>{
           //alert(error);
           console.log(error);
       })
-}
-
-);
-
-/*
-  if (
-    firstName.value === "" ||
-    lastName.value === "" ||
-    address.value === "" ||
-    city.value === "" ||
-    email.value === ""
-  ) {
-    window.confirm(
-      "Vous devez remplir le formulaire pour confirmer la commande"
-    );
-  } else if (
-    regexTexts.test(firstName.value) == false ||
-    regexTexts.test(lastName.value) == false ||
-    regexAddress.test(address.value) == false ||
-    regexTexts.test(city.value) == false ||
-    regexMail.test(email.value) == false
-  ) {
-    window.confirm("Le formulaire est mal rempli, veuillez le vérifier. Merci");
-  } else {
-    let products = [];
-    productLocalStorage.forEach((order) => {
-      products.push(order.id);
-    });
-
-    let orderMade = { contact, products };
-    console.log(orderMade);
-    fetch((`http://localhost:3000/api/products/order`),{
-            method: "POST",
-            headers :{'Accept':'application/json','Content-type':'application/json'
-            },
-            body : JSON.stringify(orderMade)
-        })
-        .then(res =>{
-            return res.json();
-        })
-        .then((confirm)=>{
-        window.location.href =`confirmation.html?orderId=${confirm.orderId}`;
-        })
-        .catch((error)=>{
-            alert(error);
-        })
-  }
+    }
 });
-*/
+
+
