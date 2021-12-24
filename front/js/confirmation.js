@@ -1,4 +1,8 @@
-const  url = new URL(document.location);
-const orderId = url.get("orderId");
+const productIdUrl = window.location.search;
+const urlProduct = new URLSearchParams(productIdUrl); 
+const orderId = urlProduct.get("order");
+let order = document.querySelector("#orderId");
 
-document.getElementById("orderId").textContent = orderId;
+order.textContent = orderId;
+
+//localStorage.clear();

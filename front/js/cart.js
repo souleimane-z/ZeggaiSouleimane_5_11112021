@@ -1,6 +1,20 @@
 let productLocalStorage = JSON.parse(localStorage.getItem("product"));
 console.log(productLocalStorage);
 
+const order = document.querySelector("#order");
+// Variables Regex, permet de valider les champs du formulaire
+let regexTexts = /^[a-zA-Z\-çñàéèêëïîôüù ]{2,}$/;
+let regexAddress = /^[0-9a-zA-Z\s,.'-çñàéèêëïîôüù]{3,}$/;
+let regexMail = /^[A-Za-z0-9\-\.]+@([A-Za-z0-9\-]+\.)+[A-Za-z0-9-]{2,4}$/;
+
+// Variables pour récupérer les id des champs de formulaire
+const firstName = document.querySelector("#firstName");
+const lastName = document.querySelector("#lastName");
+const address = document.querySelector("#address");
+const city = document.querySelector("#city");
+const email = document.querySelector("#email");
+
+
 // Calcule de la quantité total
 function computeQuantity() {
   let totalQuantity = 0;
@@ -108,17 +122,6 @@ computePrice();
  * 
  */
 
-// Variables Regex, permet de valider les champs du formulaire
-let regexTexts = /^[a-zA-Z\-çñàéèêëïîôüù ]{2,}$/;
-let regexAddress = /^[0-9a-zA-Z\s,.'-çñàéèêëïîôüù]{3,}$/;
-let regexMail = /^[A-Za-z0-9\-\.]+@([A-Za-z0-9\-]+\.)+[A-Za-z0-9-]{2,4}$/;
-
-// Variables pour récupérer les id des champs de formulaire
-const firstName = document.getElementById("firstName");
-const lastName = document.getElementById("lastName");
-const address = document.getElementById("address");
-const city = document.getElementById("city");
-const email = document.getElementById("email");
 /*
 // Validation prénom
 firstName.addEventListener("input", (event) => {
@@ -183,9 +186,9 @@ email.addEventListener("input", (event) => {
   }
 });
 */
-let order = document.getElementById("order");
 order.addEventListener("click", (e) => {
-  e.preventDefault();
+  e.preventDefault(); 
+  
   let contact = {
     firstName: firstName.value,
     lastName: lastName.value,
@@ -211,14 +214,19 @@ order.addEventListener("click", (e) => {
           return res.json();
       })
       .then((confirm)=>{
-      window.location.href =`confirmation.html?orderId=${confirm.orderId}`;
+        localStorage.removeItem('product');
+        window.location.replace(`confirmation.html?order=${confirm.orderId}`);
+
+        //window.location.href =`confirmation.html?orderId=${confirm.orderId}`;
       })
       .catch((error)=>{
-          alert(error);
+          //alert(error);
+          console.log(error);
       })
 }
 
 );
+
 /*
   if (
     firstName.value === "" ||
